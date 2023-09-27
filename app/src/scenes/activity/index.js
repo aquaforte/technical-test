@@ -29,17 +29,18 @@ const Activity = () => {
   }, []);
 
   if (user === null) return <Loader />;
+  
 
   return (
     // Container
     <div className="w-screen md:w-full">
       <div className="flex flex-wrap gap-5 p-2 md:!px-8">
         <SelectProject
-          value={project}
-          onChange={(e) => setProject(e.name)}
+          value={project ?? ""}
+          onChange={(e) => setProject(e ? e.name : "")}
           className="w-[180px] bg-[#FFFFFF] text-[#212325] py-[10px] px-[14px] rounded-[10px] border-r-[16px] border-[transparent] cursor-pointer shadow-sm font-normal text-[14px]"
         />
-        <SelectMonth start={-3} indexDefaultValue={3} value={date} onChange={(e) => setDate(e.target.value)} showArrows />
+        <SelectMonth start={-3} indexDefaultValue={3} value={date || ""} onChange={(e) => setDate(e.target.value)} showArrows />
       </div>
       {date && user && <Activities date={new Date(date)} user={user} project={project} />}
     </div>
@@ -50,13 +51,17 @@ const Activities = ({ date, user, project }) => {
   const [activities, setActivities] = useState([]);
   const [open, setOpen] = useState(null);
 
+
   useEffect(() => {
     (async () => {
       const { data } = await api.get(`/activity?date=${date.getTime()}&user=${user.name}&project=${project}`);
       const projects = await api.get(`/project/list`);
       setActivities(
         data.map((activity) => {
-          return { ...activity, projectName: (activity.projectName = projects.data.find((project) => project._id === activity.projectId)?.name) };
+          return {
+            ...activity,
+            projectName: (activity.projectName = projects.data.find((project) => project._id === activity.projectId)?.name)
+          };
         }),
       );
       setOpen(null);
@@ -175,7 +180,7 @@ const Activities = ({ date, user, project }) => {
                   </tr>
                   {activities.map((e, i) => {
                     return (
-                      <React.Fragment key={e.project}>
+                      <React.Fragment key={e._id}>
                         <tr className="border-t border-b border-r border-[#E5EAEF]" key={`1-${e._id}`} onClick={() => setOpen(i)}>
                           <th className="w-[100px] border-t border-b border-r text-[12px] font-bold text-[#212325] text-left">
                             <div className="flex flex-1 items-center justify-between gap-1 px-2">
@@ -209,7 +214,7 @@ const Activities = ({ date, user, project }) => {
                               <div className="w-full">
                                 {/* <th>My Work Space</th> */}
                                 <textarea
-                                  value={e.comment}
+                                  value={e.comment ?? ""}
                                   onChange={(e) => onUpdateComment(i, e.target.value)}
                                   placeholder={`Please add a comment on what you deliver on ${e.project} (We need to show value created to clients)`}
                                   rows={6}
@@ -261,7 +266,7 @@ const Field = ({ value = 0, onChange, invoiced, ...rest }) => {
       <input
         className={`min-w-[30px] w-full text-center ${bgColor} ${textColor}`}
         disabled={invoiced === "yes"}
-        value={value}
+        value={value ?? 0}
         min={0}
         {...rest}
         type="number"

@@ -145,19 +145,19 @@ const Create = ({ onChangeSearch }) => {
                   const res = await api.post("/project", values);
                   if (!res.ok) throw res;
                   toast.success("Created!");
-                  setOpen(false);
                 } catch (e) {
                   console.log(e);
                   toast.error("Some Error!", e.code);
                 }
                 setSubmitting(false);
+                setOpen(false);
               }}>
               {({ values, handleChange, handleSubmit, isSubmitting }) => (
                 <React.Fragment>
                   <div className="w-full md:w-6/12 text-left">
                     <div>
                       <div className="text-[14px] text-[#212325] font-medium	">Name</div>
-                      <input className="projectsInput text-[14px] font-normal text-[#212325] rounded-[10px]" name="name" value={values.name} onChange={handleChange} />
+                      <input className="projectsInput text-[14px] font-normal text-[#212325] rounded-[10px]" name="name" value={values.name ?? ""} onChange={handleChange} />
                     </div>
                     <LoadingButton
                       className="mt-[1rem] bg-[#0560FD] text-[16px] font-medium text-[#FFFFFF] py-[12px] px-[22px] rounded-[10px]"

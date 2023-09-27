@@ -56,11 +56,13 @@ const Activities = ({ date, user, project }) => {
     (async () => {
       const { data } = await api.get(`/activity?date=${date.getTime()}&user=${user.name}&project=${project}`);
       const projects = await api.get(`/project/list`);
+      const users = await api.get(`/user`);
       setActivities(
         data.map((activity) => {
           return {
             ...activity,
-            projectName: (activity.projectName = projects.data.find((project) => project._id === activity.projectId)?.name)
+            projectName: (activity.projectName = projects.data.find((project) => project._id === activity.projectId)?.name),
+            user: (activity.userId = users.data.find((user) => user._id === activity.userId)?.name)
           };
         }),
       );
@@ -70,7 +72,7 @@ const Activities = ({ date, user, project }) => {
 
   const days = getDaysInMonth(date.getMonth(), date.getFullYear());
   const onAddActivities = (project) => {
-    const found = activities.find((a) => a.projectId === project._id);
+    const found = activities.find((a) => a.projectId === project._id && a.userId === user._id);
     if (found) return toast.error(`Project ${project.name} already added !`);
     setActivities([
       ...activities,
@@ -83,6 +85,7 @@ const Activities = ({ date, user, project }) => {
         userSellPerDay: user.sellPerDay,
         userJobTitle: user.job_title,
         userAvatar: user.avatar,
+        user: user.name,
         total: 0,
         cost: 0,
         value: 0,
@@ -184,8 +187,9 @@ const Activities = ({ date, user, project }) => {
                         <tr className="border-t border-b border-r border-[#E5EAEF]" key={`1-${e._id}`} onClick={() => setOpen(i)}>
                           <th className="w-[100px] border-t border-b border-r text-[12px] font-bold text-[#212325] text-left">
                             <div className="flex flex-1 items-center justify-between gap-1 px-2">
-                              <div className="flex flex-1 items-center justify-start gap-1">
+                              <div className="flex flex-1 items-start flex-column justify-start gap-x-1">
                                 <div>{e.projectName}</div>
+                                <div className="font-normal"> ({e.user})</div>
                               </div>
                               <div className="flex flex-col items-end">
                                 <div className="text-xs italic font-normal">{(e.total / 8).toFixed(2)} days</div>
